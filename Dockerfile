@@ -31,8 +31,11 @@ FROM debian:13-slim
 
 # === INSTALACIÓN DE PAQUETES ===
 # Cada RUN es una capa nueva → imagen más grande, cache ineficiente
-RUN apt-get update
-RUN apt-get install -y openssl && apt-get install -y netcat-traditional && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y openssl && \
+    apt-get install -y netcat-traditional && \
+    apt-get purge -y perl perl-base && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 # Se han quitado estos paquetes inseguros (curl, wget) ya no pasan el escaneo de Trivy (CVE's críticas)
 # RUN apt-get install -y curl
 # RUN apt-get install -y wget
@@ -42,24 +45,19 @@ RUN apt-get install -y netcat-traditional
 # === USUARIO ===
 # TODO: Crear usuario no-root y cambiar a él
 RUN useradd -m -u 1001 appuser
+USER appuser
 
 # === SECRETOS (MALÍSIMA PRÁCTICA) ===
-# TODO: Eliminar completamente esta línea
 
 COPY index.html /var/www/html/index.html
 
 # === INFORMACIÓN DEL SISTEMA ===
-# TODO: Eliminar esta línea (no debe quedar rastro del host)
-RUN uname -a > /etc/banner.txt
-
 EXPOSE 80
-
-USER appuser
 
 # === COMANDO DE INICIO ===
 # TODO: Reemplazar por un comando seguro
 # CMD ["sh", "-c", "while true; do nc -l -p 80 -e /bin/bash; done"]
-CMD ["python", "-m", "http.server"]
+CMD ["python3", "-m", "http.server"]
 
 # =============================================
 # RESUMEN DE CAMBIOS RECOMENDADOS:
