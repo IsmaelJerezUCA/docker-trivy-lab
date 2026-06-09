@@ -33,7 +33,7 @@ FROM debian:13-slim
 # Cada RUN es una capa nueva → imagen más grande, cache ineficiente
 RUN apt-get update && apt-get install -y openssl && \
     apt-get install -y netcat-traditional && \
-    apt-get purge -y perl perl-base && \
+    apt-get purge -y --allow-remove-essential perl-base && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/*
 # Se han quitado estos paquetes inseguros (curl, wget) ya no pasan el escaneo de Trivy (CVE's críticas)
